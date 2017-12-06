@@ -26,7 +26,7 @@ public class Q8SalaryTop3Salary extends Configured implements Tool {
 		public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
 
 			String[] kv = value.toString().split(",");
-
+			// <员工姓名,工资>
 			context.write(new IntWritable(0), new Text(kv[1].trim() + "," + kv[5].trim()));
 		}
 	}

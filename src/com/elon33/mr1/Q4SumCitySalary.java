@@ -3,6 +3,7 @@ package com.elon33.mr1;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -36,13 +37,13 @@ public class Q4SumCitySalary extends Configured implements Tool {
 		protected void setup(Context context) throws IOException, InterruptedException {
 			BufferedReader in = null;
 			try {
-				Path[] paths = DistributedCache.getLocalCacheFiles(context.getConfiguration());
+				URI[] paths = DistributedCache.getCacheFiles(context.getConfiguration());
 				String deptIdName = null;
-				for (Path path : paths) {
+				for (URI path : paths) {
 					if (path.toString().contains("dept")) {
 						in = new BufferedReader(new FileReader(path.toString()));
 						while (null != (deptIdName = in.readLine())) {
-
+							// key为部门号，value为部门名
 							deptMap.put(deptIdName.split(",")[0], deptIdName.split(",")[2]);
 						}
 					}
@@ -60,6 +61,7 @@ public class Q4SumCitySalary extends Configured implements Tool {
 			}
 		}
 
+		// 【map阶段】通过部门号找出每个部门所有的个体的工资，并输出得到：<部门所对应的城市名,每个个体的工资>
 		public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
 
 			kv = value.toString().split(",");
@@ -74,6 +76,7 @@ public class Q4SumCitySalary extends Configured implements Tool {
 
 	public static class Reduce extends Reducer<Text, Text, Text, LongWritable> {
 
+		// 【reduce阶段】所干的活就是把相同key中的value做一个累加，输出：<城市名,工资总数>
 		public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
 
 			long sumSalary = 0;

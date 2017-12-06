@@ -78,7 +78,8 @@ public class Q1SumDeptSalary extends Configured implements Tool {
 			if (deptMap.containsKey(kv[7])) {
 				if (null != kv[5] && !"".equals(kv[5].toString())) {
 					context.write(new Text(deptMap.get(kv[7].trim())), new Text(kv[5].trim()));
-//					System.out.println("<"+deptMap.get(kv[7].trim())+"--"+ kv[5].trim()+">");
+					// System.out.println("<"+deptMap.get(kv[7].trim())+"--"+
+					// kv[5].trim()+">");
 				}
 			}
 		}
@@ -96,7 +97,7 @@ public class Q1SumDeptSalary extends Configured implements Tool {
 
 			// 输出key为部门名称和value为该部门员工工资总和
 			context.write(key, new LongWritable(sumSalary));
-//			System.out.println("<"+key+" --"+sumSalary+">");
+			// System.out.println("<"+key+" --"+sumSalary+">");
 		}
 	}
 

@@ -3,6 +3,7 @@ package com.elon33.mr1;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.URI;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -38,9 +39,9 @@ public class Q3DeptEarliestEmp extends Configured implements Tool {
 		protected void setup(Context context) throws IOException, InterruptedException {
 			BufferedReader in = null;
 			try {
-				Path[] paths = DistributedCache.getLocalCacheFiles(context.getConfiguration());
+				URI[] paths = DistributedCache.getCacheFiles(context.getConfiguration());
 				String deptIdName = null;
-				for (Path path : paths) {
+				for (URI path : paths) {
 					if (path.toString().contains("dept")) {
 						in = new BufferedReader(new FileReader(path.toString()));
 						while (null != (deptIdName = in.readLine())) {
@@ -81,7 +82,7 @@ public class Q3DeptEarliestEmp extends Configured implements Tool {
 			String empName = null;
 			String empEnterDate = null;
 
-			DateFormat df = new SimpleDateFormat("dd/MM/yy");
+			DateFormat df = new SimpleDateFormat("dd-MM月-yy");
 			Date earliestDate = new Date();
 			String earliestEmp = null;
 

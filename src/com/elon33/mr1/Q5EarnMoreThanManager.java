@@ -26,25 +26,29 @@ public class Q5EarnMoreThanManager extends Configured implements Tool {
 		public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
 
 			String[] kv = value.toString().split(",");
-
+			// 输出所有员工的工资键值对，以自己的编号为key，以工资为value
 			context.write(new Text(kv[0].toString()), new Text("M," + kv[5]));
-
+			// System.out.println("<"+kv[0].toString()+"---"+"M," + kv[5]+">");
 			if (null != kv[3] && !"".equals(kv[3].toString())) {
+				// 输出有直属上司的雇员的工资，以其上司的编号为key值，自己的工资信息为value
 				context.write(new Text(kv[3].toString()), new Text("E," + kv[1] + "," + kv[5]));
+				// System.out.println("<"+kv[3].toString()+"---"+"E," + kv[1] + "," + kv[5]+">");
 			}
 		}
 	}
 
 	public static class Reduce extends Reducer<Text, Text, Text, Text> {
 
+		// 在同一个reduce任务中 只处理一个键值对，因此在一个reduce中存放的是指定的上司和属于他的直属 下属
 		public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
 
 			String empName;
 			long empSalary = 0;
 			HashMap<String, Long> empMap = new HashMap<String, Long>();
-			
+
 			long mgrSalary = 0;
 
+			// 将职员和上司的工资信息分开存放，利于比较普通下属与上司的工资比较，找出符合条件的，否则该reduce任务不输出结果
 			for (Text val : values) {
 				if (val.toString().startsWith("E")) {
 					empName = val.toString().split(",")[1];

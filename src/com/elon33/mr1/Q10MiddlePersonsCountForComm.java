@@ -27,6 +27,7 @@ public class Q10MiddlePersonsCountForComm extends Configured implements Tool {
 
 	public static class MapClass extends Mapper<LongWritable, Text, IntWritable, Text> {
 
+		// 在Mapper阶段所有员工数据，其中经理数据key为0值、value为"员工编号，员工经理编号"
 		public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
 
 			String[] kv = value.toString().split(",");
@@ -35,12 +36,14 @@ public class Q10MiddlePersonsCountForComm extends Configured implements Tool {
 		}
 	}
 
+	// 在Reduce阶段把所有员工放到员工列表和员工对应经理链表Map中
 	public static class Reduce extends Reducer<IntWritable, Text, NullWritable, Text> {
 
-		List<String> employeeList = new ArrayList<String>();
-		Map<String, String> employeeToManagerMap = new HashMap<String, String>();
+		List<String> employeeList = new ArrayList<String>(); // 存放员工编号的链表
+		Map<String, String> employeeToManagerMap = new HashMap<String, String>(); // 存放员工编号与其上司经理编号的映射关系
 
-		public void reduce(IntWritable key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
+		public void reduce(IntWritable key, Iterable<Text> values, Context context)
+				throws IOException, InterruptedException {
 
 			for (Text value : values) {
 				employeeList.add(value.toString().split(",")[0].trim());
@@ -49,18 +52,19 @@ public class Q10MiddlePersonsCountForComm extends Configured implements Tool {
 		}
 
 		@Override
+		// 最后在Reduce的Cleanup中按照上面所说算法对任意两个员工计算出沟通的路径长度并输出。
 		protected void cleanup(Context context) throws IOException, InterruptedException {
 			int totalEmployee = employeeList.size();
 			int i, j;
 			int distance;
 			System.out.println(employeeList);
 			System.out.println(employeeToManagerMap);
-
+			// 输出任意两个员工之间的连通路径长度
 			for (i = 0; i < (totalEmployee - 1); i++) {
 				for (j = (i + 1); j < totalEmployee; j++) {
 					distance = calculateDistance(i, j);
 					String value = employeeList.get(i) + " and " + employeeList.get(j) + " = " + distance;
-					context.write(NullWritable.get(), new Text(value)); 
+					context.write(NullWritable.get(), new Text(value));
 				}
 			}
 		}
@@ -70,33 +74,34 @@ public class Q10MiddlePersonsCountForComm extends Configured implements Tool {
 			String employeeB = employeeList.get(j);
 			int distance = 0;
 
-			if (employeeToManagerMap.get(employeeA).equals(employeeB) || employeeToManagerMap.get(employeeB).equals(employeeA)) {
+			if (employeeToManagerMap.get(employeeA).equals(employeeB)
+					|| employeeToManagerMap.get(employeeB).equals(employeeA)) {
 				distance = 0;
-			}
-			else if (employeeToManagerMap.get(employeeA).equals(employeeToManagerMap.get(employeeB))) {
+			} else if (employeeToManagerMap.get(employeeA).equals(employeeToManagerMap.get(employeeB))) {
 				distance = 0;
 			} else {
 				List<String> employeeA_ManagerList = new ArrayList<String>();
 				List<String> employeeB_ManagerList = new ArrayList<String>();
 
-				employeeA_ManagerList.add(employeeA);
+				employeeA_ManagerList.add(employeeA); // A链表中插入A员工编号
 				String current = employeeA;
 				while (false == employeeToManagerMap.get(current).isEmpty()) {
 					current = employeeToManagerMap.get(current);
-					employeeA_ManagerList.add(current);
+					employeeA_ManagerList.add(current); // 通过A员工编号得到对应的上司经理的编号，并插入链表,最终得到从A开始，且存放向上追溯相关联的经理节点的链表
 				}
 
-				employeeB_ManagerList.add(employeeB);
+				employeeB_ManagerList.add(employeeB); // B链表中插入B员工编号
 				current = employeeB;
 				while (false == employeeToManagerMap.get(current).isEmpty()) {
 					current = employeeToManagerMap.get(current);
-					employeeB_ManagerList.add(current);
+					employeeB_ManagerList.add(current); // 通过B员工编号得到对应的上司经理的编号，并插入链表,最终得到从B开始，且存放向上追溯相关联的经理节点的链表
 				}
 
 				int ii = 0, jj = 0;
 				String currentA_manager, currentB_manager;
 				boolean found = false;
 
+				// 找到A和B链表交集，得到路径长度
 				for (ii = 0; ii < employeeA_ManagerList.size(); ii++) {
 					currentA_manager = employeeA_ManagerList.get(ii);
 					for (jj = 0; jj < employeeB_ManagerList.size(); jj++) {

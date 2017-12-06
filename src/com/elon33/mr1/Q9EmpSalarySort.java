@@ -51,7 +51,7 @@ public class Q9EmpSalarySort extends Configured implements Tool {
 
 		job.setMapOutputKeyClass(IntWritable.class);
 		job.setMapOutputValueClass(Text.class);
-		job.setSortComparatorClass(DecreaseComparator.class);
+		job.setSortComparatorClass(DecreaseComparator.class);	// 排序规则：倒排
 
 		String[] otherArgs = new GenericOptionsParser(job.getConfiguration(), args).getRemainingArgs();
 		FileInputFormat.addInputPath(job, new Path(otherArgs[0]));

@@ -26,8 +26,9 @@ public class Q6HigherThanAveSalary extends Configured implements Tool {
 
 			String[] kv = value.toString().split(",");
 
+			// 输出<0,每个人的工资> 用于计算平均工资
 			context.write(new IntWritable(0), new Text(kv[5]));
-
+			// 输出<1,该员工姓名+员工工资> 用于和平均工资比较
 			context.write(new IntWritable(1), new Text(kv[1] + "," + kv[5]));
 		}
 	}
@@ -37,26 +38,27 @@ public class Q6HigherThanAveSalary extends Configured implements Tool {
 		private long allSalary = 0;
 		private int allEmpCount = 0;
 		private long aveSalary = 0;
-		
+
 		private long empSalary = 0;
 
-		public void reduce(IntWritable key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
+		public void reduce(IntWritable key, Iterable<Text> values, Context context)
+				throws IOException, InterruptedException {
 
 			for (Text val : values) {
+				// 得到工资总数
 				if (0 == key.get()) {
 					allSalary += Long.parseLong(val.toString());
 					allEmpCount++;
 					System.out.println("allEmpCount = " + allEmpCount);
 				} else if (1 == key.get()) {
 					if (aveSalary == 0) {
-						aveSalary = allSalary / allEmpCount;
+						aveSalary = allSalary / allEmpCount; // 计算平均工资
 						context.write(new Text("Average Salary = "), new Text("" + aveSalary));
 						context.write(new Text("Following employees have salarys higher than Average:"), new Text(""));
 					}
+					// System.out.println("Employee salary = " + val.toString());
+					// aveSalary = allSalary / allEmpCount;
 
-					System.out.println("Employee salary = " + val.toString());
-					aveSalary = allSalary / allEmpCount;
-					
 					empSalary = Long.parseLong(val.toString().split(",")[1]);
 					if (empSalary > aveSalary) {
 						context.write(new Text(val.toString().split(",")[0]), new Text("" + empSalary));

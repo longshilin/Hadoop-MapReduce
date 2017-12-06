@@ -3,6 +3,7 @@ package com.elon33.mr1;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,9 +35,9 @@ public class Q7NameDeptOfStartJ extends Configured implements Tool {
 			BufferedReader in = null;
 			try {
 
-				Path[] paths = DistributedCache.getLocalCacheFiles(context.getConfiguration());
+				URI[] paths = DistributedCache.getCacheFiles(context.getConfiguration());
 				String deptIdName = null;
-				for (Path path : paths) {
+				for (URI path : paths) {
 
 					if (path.toString().contains("dept")) {
 						in = new BufferedReader(new FileReader(path.toString()));
